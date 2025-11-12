@@ -1,3 +1,4 @@
 **/*gpt-2-small-transcoders*
 **/*.ipynb_checkpoints
 **/*__pycache__
+venv/

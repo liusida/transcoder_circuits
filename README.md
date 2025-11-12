@@ -2,7 +2,7 @@
 
 This repository provides a simple method to extract weights from GPT-2 transcoder checkpoints without dealing with complex dependency conflicts.
 
-It took me quite a while to figure out how to extract the weights from the original .pt files. I tried to do `pip install -r requirements.txt`, but there's conflicts among dependencies. So I think it's worth to share the way to skip all the original Python programs, and just extract the weights.
+It took me quite a while to figure out how to extract the weights from the original .pt files. I tried to do `pip install -r requirements.txt`, but there's conflicts among dependencies. So I think it's worth to share the way to skip most of the original Python programs (we still need `./sae_training/config.py`), and just extract the weights.
 
 ## Prerequisites
 
@@ -22,19 +22,20 @@ from huggingface_hub import snapshot_download
 snapshot_download(
     repo_id="pchlenski/gpt2-transcoders",
     allow_patterns=["*.pt"],
-    local_dir="./gpt-2-small-transcoders",
-    local_dir_use_symlinks=False
+    local_dir="./gpt-2-small-transcoders"
 )
 ```
 
 Second, extract the weights using a workaround to bypass dependency issues. The original checkpoints require `wandb` and have numpy compatibility issues, so we mock those dependencies before loading.
 
 ```python
+
 import torch
 import numpy as np
 from unittest.mock import MagicMock
 import sys
 import os
+import types
 
 # Mock wandb BEFORE any imports
 sys.modules["wandb"] = MagicMock()
@@ -114,4 +115,6 @@ W_enc = weights["W_enc"]  # Encoder weights
 W_dec = weights["W_dec"]  # Decoder weights
 b_enc = weights["b_enc"]  # Encoder bias
 b_dec = weights["b_dec"]  # Decoder bias
+
+print(W_enc.shape, W_dec.shape, b_enc.shape, b_dec.shape)
 ```
